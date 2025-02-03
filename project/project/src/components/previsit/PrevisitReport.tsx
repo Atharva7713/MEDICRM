@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { supabase } from '../../lib/supabase';
-import type { PrevisitReport} from '../../types/types';
+import type { PrevisitReport } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
 import UserNavbar from '../UserNavbar';
 
@@ -14,7 +14,7 @@ export default function PrevisitReport() {
     } catch (error) {
       console.error('Error signing out:', error);
     }
-  }
+  };
   const navigate = useNavigate();
   const [report, setReport] = useState<PrevisitReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,18 +37,54 @@ export default function PrevisitReport() {
             discussion_topics
           ),
           users (name),
-          customers (name)
+          customers (unique_hcp_id, name)
         `)
         .order('created_at', { ascending: false })
         .limit(1);
-
+  
       if (error) throw error;
-      
+  
       // Handle empty data case
       if (!data || data.length === 0) {
         setReport(null);
       } else {
-        setReport(data[0]);
+        // Map the data to the PrevisitReport interface
+        const reportData: PrevisitReport = {
+          id:data[0],
+          unique_hcp_id: data[0].customers?.unique_hcp_id || '',
+          interaction_id: data[0].interaction_id,
+          msl_id: data[0].msl_id,
+          customer_id: data[0].customer_id,
+          previous_interactions_summary: data[0].previous_interactions_summary || '',
+          profile_changes_summary: data[0].profile_changes_summary || '',
+          suggested_topics: data[0].suggested_topics || '',
+          created_at: data[0].created_at,
+          updated_at: data[0].updated_at,
+          interactions: data[0].interactions
+            ? {
+                interaction_date: data[0].interactions.interaction_date,
+                interaction_type: data[0].interactions.interaction_type,
+                discussion_topics: data[0].interactions.discussion_topics,
+              }
+            : undefined,
+          users: data[0].users
+            ? {
+                name: data[0].users.name,
+              }
+            : undefined,
+          customers: data[0].customers
+            ? {
+                unique_hcp_id: data[0].customers.unique_hcp_id,
+                name: data[0].customers.name,
+              }
+            : undefined,
+        };
+  
+        // Log the mapped data for debugging
+        console.log('Mapped report data:', reportData);
+  
+        // Set the report state
+        setReport(reportData);
       }
     } catch (error) {
       console.error('Error loading report:', error);
@@ -92,125 +128,126 @@ export default function PrevisitReport() {
   }
 
   return (
-  <>
-    <UserNavbar userRole={userRole} handleSignOut={handleSignOut} />
-    <div className="bg-white shadow rounded-lg">
-      <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">Pre-visit Report</h2>
-      </div>
+    <>
+      <UserNavbar userRole={userRole} handleSignOut={handleSignOut} />
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Pre-visit Report</h2>
+        </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <tbody className="divide-y divide-gray-200">
-            {/* Visit Details */}
-            <tr>
-              <td className="px-6 py-4 w-1/3 bg-gray-50">
-                <div className="text-sm font-medium text-gray-900">Visit Details</div>
-                <div className="text-xs text-gray-500">Imported from interaction page</div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="space-y-2 text-sm text-gray-900">
-                  <div><span className="font-medium">MSL Name:</span> {report.users?.name}</div>
-                  <div><span className="font-medium">Customer Name:</span> {report.customers?.name}</div>
-                  <div>
-                    <span className="font-medium">Date & Time:</span>{' '}
-                    {report.interactions?.interaction_date
-                      ? format(new Date(report.interactions.interaction_date), 'PPpp')
-                      : 'Not scheduled'}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200">
+              {/* Visit Details */}
+              <tr>
+                <td className="px-6 py-4 w-1/3 bg-gray-50">
+                  <div className="text-sm font-medium text-gray-900">Visit Details</div>
+                  <div className="text-xs text-gray-500">Imported from interaction page</div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="space-y-2 text-sm text-gray-900">
+                    <div><span className="font-medium">MSL Name:</span> {report.users?.name}</div>
+                    <div><span className="font-medium">Customer Name:</span> {report.customers?.name}</div>
+                    <div><span className="font-medium">Customer ID:</span> {report.customers?.unique_hcp_id}</div>  
+                    <div>
+                      <span className="font-medium">Date & Time:</span>{' '}
+                      {report.interactions?.interaction_date
+                        ? format(new Date(report.interactions.interaction_date), 'PPpp')
+                        : 'Not scheduled'}
+                    </div>
+                    <div>
+                      <span className="font-medium">Type:</span>{' '}
+                      {report.interactions?.interaction_type || 'Not specified'}
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium">Type:</span>{' '}
-                    {report.interactions?.interaction_type || 'Not specified'}
+                </td>
+              </tr>
+
+              {/* Previous Interactions Summary */}
+              <tr>
+                <td className="px-6 py-4 w-1/3 bg-gray-50">
+                  <div className="text-sm font-medium text-gray-900">Previous Interactions Summary</div>
+                  <div className="text-xs text-gray-500">LLM derived summary of last 3 interactions</div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900 whitespace-pre-line">
+                    {report.previous_interactions_summary || 'No previous interactions recorded'}
                   </div>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
 
-            {/* Previous Interactions Summary */}
-            <tr>
-              <td className="px-6 py-4 w-1/3 bg-gray-50">
-                <div className="text-sm font-medium text-gray-900">Previous Interactions Summary</div>
-                <div className="text-xs text-gray-500">LLM derived summary of last 3 interactions</div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="text-sm text-gray-900 whitespace-pre-line">
-                  {report.previous_interactions_summary || 'No previous interactions recorded'}
-                </div>
-              </td>
-            </tr>
+              {/* Profile Changes */}
+              <tr>
+                <td className="px-6 py-4 w-1/3 bg-gray-50">
+                  <div className="text-sm font-medium text-gray-900">Recent Profile Changes</div>
+                  <div className="text-xs text-gray-500">Web search summarized for last 3 months</div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900 whitespace-pre-line">
+                    {report.profile_changes_summary || 'No recent profile changes'}
+                  </div>
+                </td>
+              </tr>
 
-            {/* Profile Changes */}
-            <tr>
-              <td className="px-6 py-4 w-1/3 bg-gray-50">
-                <div className="text-sm font-medium text-gray-900">Recent Profile Changes</div>
-                <div className="text-xs text-gray-500">Web search summarized for last 3 months</div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="text-sm text-gray-900 whitespace-pre-line">
-                  {report.profile_changes_summary || 'No recent profile changes'}
-                </div>
-              </td>
-            </tr>
+              {/* Suggested Topics */}
+              <tr>
+                <td className="px-6 py-4 w-1/3 bg-gray-50">
+                  <div className="text-sm font-medium text-gray-900">Suggested Discussion Topics</div>
+                  <div className="text-xs text-gray-500">Auto-populated</div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900 whitespace-pre-line">
+                    {report.suggested_topics || 'No suggested topics available'}
+                  </div>
+                </td>
+              </tr>
 
-            {/* Suggested Topics */}
-            <tr>
-              <td className="px-6 py-4 w-1/3 bg-gray-50">
-                <div className="text-sm font-medium text-gray-900">Suggested Discussion Topics</div>
-                <div className="text-xs text-gray-500">Auto-populated</div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="text-sm text-gray-900 whitespace-pre-line">
-                  {report.suggested_topics || 'No suggested topics available'}
-                </div>
-              </td>
-            </tr>
-
-            {/* Pre-Visit Action Items */}
-            <tr>
-              <td className="px-6 py-4 w-1/3 bg-gray-50">
-                <div className="text-sm font-medium text-gray-900">Pre-Visit Action Items</div>
-                <div className="text-xs text-gray-500">From last visit</div>
-              </td>
-              <td className="px-6 py-4">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Task</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Status</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Solution</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    <tr>
-                      <td className="px-3 py-2 text-sm text-gray-900">Review latest clinical data</td>
-                      <td className="px-3 py-2">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Completed
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-sm text-gray-900">
-                        Clinical data review completed and summary prepared
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="px-3 py-2 text-sm text-gray-900">Prepare presentation slides</td>
-                      <td className="px-3 py-2">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          In Progress
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-sm text-gray-900">
-                        Draft slides under review
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              {/* Pre-Visit Action Items */}
+              <tr>
+                <td className="px-6 py-4 w-1/3 bg-gray-50">
+                  <div className="text-sm font-medium text-gray-900">Pre-Visit Action Items</div>
+                  <div className="text-xs text-gray-500">From last visit</div>
+                </td>
+                <td className="px-6 py-4">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Task</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Status</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Solution</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-3 py-2 text-sm text-gray-900">Review latest clinical data</td>
+                        <td className="px-3 py-2">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Completed
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-900">
+                          Clinical data review completed and summary prepared
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 text-sm text-gray-900">Prepare presentation slides</td>
+                        <td className="px-3 py-2">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            In Progress
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-900">
+                          Draft slides under review
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  </>
+    </>
   );
 }

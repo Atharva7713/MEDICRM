@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Edit2, Trash2, Search, SortAsc, SortDesc } from 'lucide-react';
+import { Edit2, Trash2, Search, SortAsc, SortDesc,Info } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '../../lib/supabase';
 import type { Interaction } from '../../types/types';
@@ -265,21 +265,27 @@ export default function InteractionList() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex space-x-3">
-                    <Link
-                      to={`/interactions/${interaction.id}`}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      <Edit2 className="h-5 w-5" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(interaction.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
-                </td>
+  <div className="flex space-x-3">
+    <Link
+      to={`/interactions/${interaction.id}`}
+      className="text-indigo-600 hover:text-indigo-900"
+    >
+      <Edit2 className="h-5 w-5" />
+    </Link>
+    <Link
+      to={`/interactions/${interaction.id}/details`} // New route for detailed view
+      className="text-gray-600 hover:text-gray-900"
+    >
+      <Info className="h-5 w-5" /> {/* Add the Info icon */}
+    </Link>
+    <button
+      onClick={() => handleDelete(interaction.id)}
+      className="text-red-600 hover:text-red-900"
+    >
+      <Trash2 className="h-5 w-5" />
+    </button>
+  </div>
+</td>
               </tr>
             ))}
           </tbody>

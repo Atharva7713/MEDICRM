@@ -124,33 +124,64 @@ export default function ChatWindow({ conversationId, onNewConversation }: ChatWi
     return newId;
   };
 
+  // const extractTaskDetails = async (prompt: string): Promise<Partial<Task>> => {
+  //   const taskDetails: Partial<Task> = {};
+
+  //   // Extract task description and name
+  //   const descriptionMatch = prompt.match(/send (.*?) details of study X/i);
+  //   if (descriptionMatch) {
+  //     taskDetails.task_description = `Send ${descriptionMatch[1]} details of study DB-08`;
+  //     taskDetails.task_requested_by = descriptionMatch[1].trim(); // Extract and set the name
+  //   } else {
+  //     // Fallback: Use the entire prompt as the task description
+  //     taskDetails.task_description = prompt;
+  //     taskDetails.task_requested_by = 'User'; // Default value
+  //   }
+
+  //   // Set due date to current date + 7 days
+  //   const currentDate = new Date();
+  //   const dueDate = new Date(currentDate);
+  //   dueDate.setDate(currentDate.getDate() + 7); // Add 7 days to the current date
+  //   taskDetails.due_date = dueDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+  //   // Assign task to the current user
+  //   taskDetails.task_assigned_to = user?.id || '';
+  //   taskDetails.task_created_by = user?.id || '';
+
+  //   // Set default status
+  //   taskDetails.status = 'Pending';
+
+  //   return taskDetails;
+  // };
+
   const extractTaskDetails = async (prompt: string): Promise<Partial<Task>> => {
     const taskDetails: Partial<Task> = {};
-
-    // Extract task description and name
-    const descriptionMatch = prompt.match(/send (.*?) details of study X/i);
-    if (descriptionMatch) {
-      taskDetails.task_description = `Send ${descriptionMatch[1]} details of study X`;
-      taskDetails.task_requested_by = descriptionMatch[1].trim(); // Extract and set the name
+  
+    // Improved logic to extract customer name
+    const customerNameMatch = prompt.match(/send (.*?) details of study/i);
+    if (customerNameMatch && customerNameMatch[1]) {
+      const customerName = customerNameMatch[1].trim();
+      taskDetails.task_description = `Send ${customerName} details of study DB-08`;
+      taskDetails.task_requested_by = customerName; // Set the extracted name
     } else {
       // Fallback: Use the entire prompt as the task description
       taskDetails.task_description = prompt;
       taskDetails.task_requested_by = 'User'; // Default value
     }
-
+  
     // Set due date to current date + 7 days
     const currentDate = new Date();
     const dueDate = new Date(currentDate);
     dueDate.setDate(currentDate.getDate() + 7); // Add 7 days to the current date
     taskDetails.due_date = dueDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-
+  
     // Assign task to the current user
     taskDetails.task_assigned_to = user?.id || '';
     taskDetails.task_created_by = user?.id || '';
-
+  
     // Set default status
     taskDetails.status = 'Pending';
-
+  
     return taskDetails;
   };
 

@@ -16,7 +16,7 @@ export interface User {
 
 // Customer type (KOL)
 export interface Customer {
-  id: string;
+  unique_hcp_id: string;
   name: string;
   specialty?: string;
   affiliation?: string;

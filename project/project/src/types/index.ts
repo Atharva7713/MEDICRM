@@ -1,6 +1,7 @@
 // Add to existing types
 export interface PrevisitReport {
-  id: string;
+  id:string
+  unique_hcp_id: string;
   interaction_id: string;
   msl_id: string;
   customer_id: string;
@@ -18,6 +19,7 @@ export interface PrevisitReport {
     name: string;
   };
   customers?: {
+    unique_hcp_id: string
     name: string;
   };
 }

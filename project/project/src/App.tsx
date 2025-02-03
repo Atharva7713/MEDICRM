@@ -24,6 +24,10 @@ import MainDashboard from './components/Main_Dashboard/MainDashboard';
 import ChatWithRAG from './components/chat/ChatWithRAG';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import CustomerDetails from './components/customers/CustomerDetails';
+import StudiesPage from './components/studies/StudiesPage'; // Adjust the import path as needed
+import InteractionDetails from './components/interactions/InteractionDetails';
+import IISStudiesPage from './components/iis/IISStudiesPage';
+import EventsPage from './components/events/EventsPage';
 
 function AdminContent() {
   const navigate = useNavigate();
@@ -58,14 +62,18 @@ function AdminContent() {
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskForm />} />
           <Route path="/previsit" element={<PrevisitList />} />
-          <Route path="/previsit/:id" element={<PrevisitReport />} />
+          <Route path="/previsit/:unique_hcp_id" element={<PrevisitReport />} />
           <Route path="/datasources" element={<DataSourcesList />} />
           <Route path="/dashboard/msl" element={<MslDashboard />} />
           <Route path="/dashboard/manager" element={<ManagerDashboard />} />
           <Route path="/maindashboard" element={<MainDashboard />} />
           <Route path="/admin/signup" element={<AdminSignupForm />} />
           <Route path="/chat" element={<ChatWithRAG />} />
-          <Route path="/customerdetails/:id" element={<CustomerDetails />} />
+          <Route path="/customerdetails/:unique_hcp_id" element={<CustomerDetails />} />
+          <Route path="/studies" element={<StudiesPage />} />
+          <Route path="/interactions/:id/details" element={<InteractionDetails />} />
+          <Route path="/iis" element={<IISStudiesPage />} />
+          <Route path="/events" element={<EventsPage />} />
         </Routes>
       </div>
     </div>
@@ -124,15 +132,18 @@ function UserContent() {
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskForm />} />
           <Route path="/previsit" element={<PrevisitList />} />
-          <Route path="/previsit/:id" element={<PrevisitReport />} />
+          <Route path="/previsit/:unique_hcp_id" element={<PrevisitReport />} />
           <Route path="/datasources" element={<DataSourcesList />} />
           <Route path="/dashboard/msl" element={<MslDashboard />} />
           <Route path="/dashboard/manager" element={<ManagerDashboard />} />
           <Route path="/maindashboard" element={<MainDashboard />} />
           <Route path="/admin/signup" element={<AdminSignupForm />} />
           <Route path="/chat" element={<ChatWithRAG />} />
-          <Route path="/customerdetails/:id" element={<CustomerDetails />} />
-          
+          <Route path="/customerdetails/:unique_hcp_id" element={<CustomerDetails />} />
+          <Route path="/studies" element={<StudiesPage />} />
+          <Route path="/interactions/:id/details" element={<InteractionDetails />} />
+          <Route path="/iis" element={<IISStudiesPage />} />
+          <Route path="/events" element={<EventsPage />} />
        </Routes>
       </div>
     </div>
