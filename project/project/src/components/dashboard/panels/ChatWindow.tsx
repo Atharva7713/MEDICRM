@@ -26,7 +26,7 @@ export default function ChatWindow({ conversationId, onNewConversation }: ChatWi
 
   const fetchGeminiResponse = async (query: string): Promise<string> => {
     setLoading(true);
-    const apiKey = 'AIzaSyAspdTpDwuj5s93jEOnalVm0I7RzeujAqw';
+    const apiKey = 'AIzaSyB2k_XQ1FGcCwIkdw7Rh3H9XIm_FMlOcEo';
 
     try {
       const response = await fetch(
